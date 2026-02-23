@@ -18,7 +18,7 @@ if (window.location.hostname.includes("google.com") && window.location.search.in
 // Google search page + наш маркер
 if (
     window.location.hostname.includes("google.") &&
-    window.location.search.includes("#ext_data:assistant")
+    decodeURIComponent(window.location.hash).includes("#ext_data:assistant")
 ) {
     console.log("[Assistant] Google detected");
     console.log("[Assistant] URL:", location.href);

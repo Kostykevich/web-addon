@@ -6,8 +6,9 @@
     "service_worker": "background.js"
   },
   "permissions": [
-    "activeTab", 
-    "scripting"
+    "activeTab",
+    "scripting",
+    "webNavigation"
   ],
   "host_permissions": [
     "*://127.0.0.1/*"
