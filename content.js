@@ -18,23 +18,57 @@ if (window.location.hostname.includes("google.com") && window.location.search.in
 // Google search page + наш маркер
 if (
     window.location.hostname.includes("google.") &&
-    window.location.search.includes("__open__")
+    window.location.search.includes("#ext_data:assistant")
 ) {
-    window.addEventListener("load", () => {
-        // Первый нормальный результат Google
-        const firstResult = document.querySelector(
-            'a[href^="http"]:not([href*="google.com"])'
+    console.log("[Assistant] Google detected");
+    console.log("[Assistant] URL:", location.href);
+
+    const isGoodLink = (href) => {
+        if (!href) return false;
+
+        return (
+            href.startsWith("http") &&
+            !href.includes("google.") &&
+            !href.includes("accounts.google") &&
+            !href.includes("support.google") &&
+            !href.includes("policies.google") &&
+            !href.includes("/search?")
         );
+    };
 
-        if (firstResult) {
-            console.log("[Assistant Extension] Открываю первую ссылку:", firstResult.href);
+    const tryFindLink = () => {
+        const links = Array.from(document.querySelectorAll("a"));
 
-            // Переход на сайт
-            window.location.href = firstResult.href;
-        } else {
-            console.log("[Assistant Extension] Подходящая ссылка не найдена");
+        console.log("[Assistant] Всего ссылок:", links.length);
+
+        for (let i = 0; i < links.length; i++) {
+            const href = links[i].href;
+
+            console.log(`[Assistant] Проверка ${i}:`, href);
+
+            if (isGoodLink(href)) {
+                console.log("[Assistant] ✔ Найдена подходящая ссылка:", href);
+                window.location.href = href;
+                return true;
+            }
         }
-    });
+
+        console.log("[Assistant] ❌ Подходящая ссылка пока не найдена");
+        return false;
+    };
+
+    // пробуем сразу
+    if (!tryFindLink()) {
+        // Google часто подгружает DOM позже
+        const observer = new MutationObserver(() => {
+            if (tryFindLink()) observer.disconnect();
+        });
+
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
+    }
 }
 
 // На сайте kinogo.online
